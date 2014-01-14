@@ -299,6 +299,15 @@ AJAX.registerOnload('tbl_change.js', function () {
         );
     });
 
+    $('.foreign_values_anchor').live('click', function (event) {
+        event.preventDefault();
+        alert("F");
+        $(this).PMA_confirm("G", $(this).attr('href'), function (url) {
+
+
+        });    
+    });
+
 
     /**
      * Reset the auto_increment column to 0 when selecting any of the
