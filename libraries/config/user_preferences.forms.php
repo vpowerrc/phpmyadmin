@@ -33,6 +33,7 @@ $forms['Features']['General'] = array(
     'MaxDbList',
     'MaxTableList',
     'NumRecentTables',
+    'NumFavoriteTables',
     'ShowHint',
     'SendErrorReports');
 $forms['Features']['Text_fields'] = array(
@@ -85,6 +86,7 @@ $forms['Navi_panel']['Navi_panel'] = array(
     'NavigationTreePointerEnable',
     'MaxNavigationItems',
     'NavigationTreeEnableGrouping',
+    'NavigationTreeDisableDatabaseExpansion',
     'NavigationTreeDisplayItemFilterMinimum');
 $forms['Navi_panel']['Navi_databases'] = array(
     'NavigationTreeDisplayDbFilterMinimum',

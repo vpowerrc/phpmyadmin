@@ -154,10 +154,10 @@ function verificationsAfterFieldChange(urlField, multi_edit, theType)
 
     //To generate the textbox that can take the salt
     var new_salt_box = "<br><input type=text name=salt[multi_edit][" + multi_edit + "][" + urlField + "]" +
-        " id=salt_" + target.id + " placeholder='enter Salt'>";
+        " id=salt_" + target.id + " placeholder='" + PMA_messages.strEncryptionKey + "'>";
 
     //If AES_ENCRYPT is Selected then append the new textbox for salt
-    if (target.value == "AES_ENCRYPT") {
+    if (target.value == "AES_DECRYPT" || target.value == "AES_ENCRYPT") {
         if (!($("#salt_" + target.id).length)) {
             $("#" + target.id).parent().next("td").next("td").find("input[name*='fields']").after(new_salt_box);
         }
@@ -556,7 +556,7 @@ AJAX.registerOnload('tbl_change.js', function () {
         var salt;
         var copySalt = false;
 
-        if (functionName === 'AES_ENCRYPT') {
+        if (functionName === 'AES_ENCRYPT' || functionName === 'AES_DECRYPT') {
             // Dialog title.
             var title = functionName;
             // Dialog buttons functions.
@@ -579,8 +579,7 @@ AJAX.registerOnload('tbl_change.js', function () {
             var dialog = "<div>" +
                         "<fieldset>" +
                         "<span style='font-weight: bold;'>" +
-                        PMA_messages.strCopySalt +
-                        " ?" +
+                        PMA_messages.strCopyEncryptionKey +
                         "</fieldset>" +
                         "</div>";
 
@@ -656,13 +655,13 @@ function applyFunctionToAllRows(currId, functionName, copySalt, salt, targetRows
         }).attr("selected","selected");
 
         // Handle salt field.
-        if (functionName === 'AES_ENCRYPT') {
+        if (functionName === 'AES_ENCRYPT' || functionName === 'AES_DECRYPT') {
             if ($("#salt_" + targetSelectList.attr("id")).length === 0) {
                 // Get hash value.
                 var hashed_value = targetSelectList.attr("name").match(/\[multi\_edit\]\[\d\]\[(.*)\]/);
                 //To generate the textbox that can take the salt
                 var new_salt_box = "<br><input type=text name=salt[multi_edit][" + currentRowNum + "][" + hashed_value[1] + "]" +
-                    " id=salt_" + targetSelectList.attr("id") + " placeholder='enter Salt'>";
+                    " id=salt_" + targetSelectList.attr("id") + " placeholder='" + PMA_messages.strEncryptionKey + "'>";
                 targetSelectList.parent().next("td").next("td").find("input[name*='fields']").after(new_salt_box);
             }
 

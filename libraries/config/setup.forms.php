@@ -131,6 +131,7 @@ $forms['Features']['Other_core_settings'] = array(
     'MaxDbList',
     'MaxTableList',
     'NumRecentTables',
+    'NumFavoriteTables',
     'ShowHint',
     'OBGzip',
     'PersistentConnections',
@@ -176,6 +177,7 @@ $forms['Navi_panel']['Navi_panel'] = array(
     'NavigationTreePointerEnable',
     'MaxNavigationItems',
     'NavigationTreeEnableGrouping',
+    'NavigationTreeDisableDatabaseExpansion',
     'NavigationTreeDisplayItemFilterMinimum');
 $forms['Navi_panel']['Navi_servers'] = array(
     'NavigationDisplayServers',

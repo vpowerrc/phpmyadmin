@@ -1,25 +1,76 @@
+# The Travis setup:
+# - run testsuite for every PHP version
+# - run lint for every PHP version
+# - run Selenium for single PHP version
+
 language: php
 php:
   - "5.5"
   - "5.4"
   - "5.3"
   - hhvm
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq ant
+env:
+  matrix:
+    - PHPUNIT_ARGS="--exclude-group selenium"
+    - LINT="yes"
+  global:
+    - secure: "D24AZRWfuIYuA42eI5Rlg+6W0U1c+X33e6XqNMDzjl7KmhIqZaplOU++mKQLcx5+uIjZ4h7oJi8jIo/gmU8wHC4q+qKbL4xKIqx1AgNDwr6Upc9IBRnlfmXiwM2uxZGn5y0LdH5xM4FzBiN3Giff9hbnIdMJKvVudKVZNlHnzr8="
+    - TESTSUITE_BROWSERSTACK_USER=phpMyAdmin
+    - TESTSUITE_USER=root
+    - TESTSUITE_PASSWORD=root
 before_script:
-  - if [[ $TRAVIS_PHP_VERSION != "hhvm" ]] ; then git clone git://github.com/zenovich/runkit.git && cd runkit && phpize && ./configure && make && make install && cd .. ; fi
-  - if [[ $TRAVIS_PHP_VERSION != "hhvm" ]] ; then phpenv config-add test/travis.php.ini ; fi
-  - if [[ $TRAVIS_PHP_VERSION != "hhvm" ]] ; then pear channel-discover pear.phpunit.de ; fi
-  - if [[ $TRAVIS_PHP_VERSION != "hhvm" ]] ; then pear install phpunit/PHPUnit_Selenium ; fi
-  - composer install --dev --no-interaction
+  - mysql -uroot -e "SET PASSWORD = PASSWORD('$TESTSUITE_PASSWORD')" ;
+  - if [[ -z "$LINT" ]] ; then
+    if [[ $TRAVIS_PHP_VERSION != "hhvm" ]] ; then
+
+    git clone --depth=1 git://github.com/zenovich/runkit.git ;
+    cd runkit ;
+    phpize ;
+    ./configure ;
+    make ;
+    make install ;
+    cd .. ;
+
+    phpenv config-add test/travis.php.ini ;
+
+    pear channel-discover pear.phpunit.de ;
+    pear install phpunit/PHPUnit_Selenium ;
+
+    composer install --dev --no-interaction ;
+
+    fi ;
+
+    if [[ ! -z "$SELENIUM" ]] ; then
+
+    php --server 127.0.0.1:8000 &
+    wget http://www.browserstack.com/BrowserStackTunnel.jar ;
+    java -jar BrowserStackTunnel.jar -localIdentifier "travis-$TRAVIS_JOB_NUMBER" -onlyAutomate "$TESTSUITE_BROWSERSTACK_KEY" 127.0.0.1,8000,0 &
+
+    mysql -uroot -p$TESTSUITE_PASSWORD < examples/create_tables.sql ;
+
+    fi ;
+    fi
 script:
-  - ./scripts/generate-mo --quiet
-  - if [[ $TRAVIS_PHP_VERSION == "hhvm" ]] ; then ant phpunit-hhvm ; else ant phpunit ; fi
-  - ant lint
+  - ant locales
+  - if [[ -z "$LINT" ]] ; then
+    export TESTSUITE_URL="http://127.0.0.1:8000" ;
+    if [[ $TRAVIS_PHP_VERSION == "hhvm" ]] ; then
+    ant phpunit-hhvm ;
+    else
+    ant phpunit ;
+    fi ;
+    else
+    ant lint ;
+    fi
 after_script:
   - php vendor/bin/coveralls -v
 matrix:
   allow_failures:
     - php: hhvm
+      env: PHPUNIT_ARGS="--exclude-group selenium"
+    - php: 5.5
+      env: PHPUNIT_ARGS="--group selenium" SELENIUM="yes"
   fast_finish: true
+  include:
+    - php: 5.5
+      env: PHPUNIT_ARGS="--group selenium" SELENIUM="yes"

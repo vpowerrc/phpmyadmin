@@ -66,7 +66,7 @@ function PMA_getHtmlForActionLinks($current_table, $table_is_view, $tbl_url_quer
         $empty_table .= '&amp;message_to_show='
             . urlencode(
                 sprintf(
-                    __('Table %s has been emptied'),
+                    __('Table %s has been emptied.'),
                     htmlspecialchars($current_table['TABLE_NAME'])
                 )
             )
@@ -181,7 +181,7 @@ function PMA_getHtmlBodyForTableSummary($num_tables, $server_slave_status,
     if ($server_slave_status) {
         $html_output .= '<th>' . __('Replication') . '</th>' . "\n";
     }
-    $html_output .= '<th colspan="' . ($db_is_system_schema ? 3 : 6) . '">'
+    $html_output .= '<th colspan="' . ($db_is_system_schema ? 3 : 7) . '">'
         . __('Sum')
         . '</th>';
     $html_output .= '<th class="value tbl_rows">'
@@ -451,6 +451,7 @@ function PMA_getHtmlForStructureTableRow(
     $collation, $formatted_size, $unit, $overhead, $create_time, $update_time,
     $check_time,$is_show_stats, $ignored, $do, $colspan_for_structure
 ) {
+    global $db;
     $html_output = '<tr class="' . ($odd_row ? 'odd' : 'even');
     $odd_row = ! $odd_row;
     $html_output .= ($table_is_view ? ' is_view' : '')
@@ -476,6 +477,23 @@ function PMA_getHtmlForStructureTableRow(
                 : '')
             . '</td>';
     }
+    //Favorite table anchor.
+    $html_output .= '<td class="center">';
+    $html_output .= '<a ';
+    $html_output .= 'class="ajax favorite_table_anchor';
+    if ($table_is_view || $current_table['ENGINE'] == null) {
+        // this class is used in db_structure.js to display the
+        // correct confirmation message
+        $html_output .= ' view';
+    }
+    // Check if current table is already in favorite list.
+    $already_favorite = PMA_checkFavoriteTable($db, $current_table['TABLE_NAME']);
+    $html_output .= '" ';
+    $html_output .= 'href="db_structure.php?&amp;'. PMA_URL_getCommon($db)
+        . '&amp;' . ($already_favorite?'remove':'add')  . '_favorite=1'
+        .'&amp;favorite_table=' . urlencode($current_table['TABLE_NAME'])
+        . '" title="' . ($already_favorite ? __("Remove from Favorites") : __("Add to Favorites")) . '" >'
+        . (!$already_favorite ? $titles['NoFavorite'] : $titles['Favorite']) . '</a></td>';
 
     $html_output .= '<td class="center">' . $browse_table . '</td>';
     $html_output .= '<td class="center">'
@@ -747,7 +765,7 @@ function PMA_tableHeader($db_is_system_schema = false, $replication = false)
     if ($db_is_system_schema) {
         $action_colspan = 3;
     } else {
-        $action_colspan = 6;
+        $action_colspan = 7;
     }
 
     $html_output = '<table class="data">' . "\n"
@@ -1342,7 +1360,7 @@ function PMA_getHtmlForDropColumn($tbl_is_view, $db_is_system_schema,
             . '&amp;dropped_column=' . urlencode($row['Field'])
             . '&amp;message_to_show=' . urlencode(
                 sprintf(
-                    __('Column %s has been dropped'),
+                    __('Column %s has been dropped.'),
                     htmlspecialchars($row['Field'])
                 )
             ) . '" >'
@@ -1900,7 +1918,7 @@ function PMA_getHtmlForFullTextAction($tbl_storage_engine, $type, $url_query,
             . '&amp;message_to_show='
             . urlencode(
                 sprintf(
-                    __('An index has been added on %s'),
+                    __('An index has been added on %s.'),
                     htmlspecialchars($row['Field'])
                 )
             )
@@ -1968,7 +1986,7 @@ function PMA_getHtmlForActionsInTableStructure($type, $tbl_storage_engine,
         ($primary && $primary->hasColumn($field_name)),
         true, $url_query, $primary,
         'ADD PRIMARY KEY',
-        __('A primary key has been added on %s'),
+        __('A primary key has been added on %s.'),
         'Primary', $titles, $row, true
     );
     $html_output .= PMA_getHtmlForActionRowInStructureTable(
@@ -1976,13 +1994,13 @@ function PMA_getHtmlForActionsInTableStructure($type, $tbl_storage_engine,
         'add_unique unique nowrap',
         isset($columns_with_unique_index[$field_name]),
         false, $url_query, $primary, 'ADD UNIQUE',
-        __('An index has been added on %s'),
+        __('An index has been added on %s.'),
         'Unique', $titles, $row, false
     );
     $html_output .= PMA_getHtmlForActionRowInStructureTable(
         $type, $tbl_storage_engine,
         'add_index index nowrap', false, false, $url_query,
-        $primary, 'ADD INDEX', __('An index has been added on %s'),
+        $primary, 'ADD INDEX', __('An index has been added on %s.'),
         'Index', $titles, $row, false
     );
     if (!PMA_DRIZZLE) {
@@ -1997,7 +2015,7 @@ function PMA_getHtmlForActionsInTableStructure($type, $tbl_storage_engine,
                 || 'MYISAM' != $tbl_storage_engine
             ),
             false, $url_query, $primary, 'ADD SPATIAL',
-            __('An index has been added on %s'), 'Spatial',
+            __('An index has been added on %s.'), 'Spatial',
             $titles, $row, false
         );
 
@@ -2007,7 +2025,7 @@ function PMA_getHtmlForActionsInTableStructure($type, $tbl_storage_engine,
         );
     }
     $html_output .= PMA_getHtmlForDistinctValueAction($url_query, $row, $titles);
-    $html_output .= '</ul></td>';
+    $html_output .= '<div class="clearfloat"></div></ul></td>';
     return $html_output;
 }
 
@@ -2394,7 +2412,7 @@ function PMA_updateColumns($db, $table)
     $response = PMA_Response::getInstance();
     if ($result !== false) {
         $message = PMA_Message::success(
-            __('Table %1$s has been altered successfully')
+            __('Table %1$s has been altered successfully.')
         );
         $message->addParam($table);
 
@@ -2674,5 +2692,23 @@ function PMA_displayTableBrowseForSelectedColumns($db, $table, $goto,
         null, null, null, null, $goto, $pmaThemeImage, null, null,
         null, $sql_query, null, null
     );
+}
+
+/**
+ * Function to check if a table is already in favorite list.
+ *
+ * @param string $db            current database
+ * @param string $table         current table
+ *
+ * @return true|false
+ */
+function PMA_checkFavoriteTable($db, $current_table)
+{
+    foreach ($_SESSION['tmpval']['favorite_tables'][$GLOBALS['server']] as $key => $value) {
+        if ($value['db'] == $db && $value['table'] == $current_table) {
+            return true;
+        }
+    }
+    return false;
 }
 ?>

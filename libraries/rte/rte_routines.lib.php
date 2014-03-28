@@ -375,8 +375,8 @@ function PMA_RTN_handleEditor()
         if (count($errors)) {
             $message = PMA_Message::error(
                 __(
-                    '<b>One or more errors have occurred while'
-                    . ' processing your request:</b>'
+                    'One or more errors have occurred while'
+                    . ' processing your request:'
                 )
             );
             $message->addString('<ul>');
@@ -1472,9 +1472,9 @@ function PMA_RTN_handleExecute()
                 // output from the routine
                 $message .= sprintf(
                     _ngettext(
-                        '%d row affected by the last statement inside the procedure',
+                        '%d row affected by the last statement inside the procedure.',
                         '%d rows affected by the last statement inside the '
-                        . 'procedure',
+                        . 'procedure.',
                         $affected
                     ),
                     $affected

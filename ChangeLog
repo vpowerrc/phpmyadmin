@@ -40,10 +40,19 @@ phpMyAdmin - ChangeLog
 + rfe #1512 Import happily doesn't do anything with no file name provided
 + rfe #1514 Add function to all the insert boxes automatically
 + rfe #1515 Option to skip tables larger than n
++ rfe #1486 Possibility of disabling database expansion
++ rfe #1476 Favourite tables select box
++ rfe #420  $cfg['CharEditing']='textarea' for structure edit
++ rfe #1329 Avoid editing of fields which are part of relation
 
-4.1.12.0 (not yet released)
+4.1.13.0 (not yet released)
+- bug #4279 CTRL + up or down moves 2 fields
+
+4.1.12.0 (2014-03-27)
 - bug #4334 Add event : datepicker won't open
 - bug #4338 Fix missing value error while executing SQL query
+- TCPDF library is now optional dependency
+- bug #4326 Cannot find the import plugins which start with uppercase 'I'
 
 4.1.11.0 (2014-03-23)
 - bug #4335 reCaptcha problem (4.1.10 regression) 

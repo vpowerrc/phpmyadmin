@@ -12,6 +12,7 @@
  *
  * @package    PhpMyAdmin-test
  * @subpackage Selenium
+ * @group      selenium
  */
 abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
 {
@@ -52,11 +53,15 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
             /* BrowserStack integration */
             self::$_selenium_enabled = true;
 
+            $strategy = 'shared';
+            $build_local = false;
             $build_id = 'Manual';
             if (getenv('BUILD_TAG')) {
                 $build_id = getenv('BUILD_TAG');
             } elseif (getenv('TRAVIS_JOB_NUMBER')) {
                 $build_id = 'travis-' . getenv('TRAVIS_JOB_NUMBER');
+                $build_local = true;
+                $strategy = 'isolated';
             }
 
             $capabilities = array(
@@ -67,13 +72,19 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
                 'build' => $build_id,
             );
 
+            if ($build_local) {
+                $capabilities['browserstack.local'] = $build_local;
+                $capabilities['browserstack.localIdentifier'] = $build_id;
+                $capabilities['browserstack.debug'] = true;
+            }
+
             $result = array();
             $result[] = array(
                 'browserName' => 'chrome',
                 'host' => 'hub.browserstack.com',
                 'port' => 80,
                 'timeout' => 30000,
-                'sessionStrategy' => 'shared',
+                'sessionStrategy' => $strategy,
                 'desiredCapabilities' => $capabilities,
             );
 
@@ -88,7 +99,7 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
                 'host' => 'hub.browserstack.com',
                 'port' => 80,
                 'timeout' => 30000,
-                'sessionStrategy' => 'shared',
+                'sessionStrategy' => $strategy,
                 'desiredCapabilities' => array_merge(
                     $capabilities,
                     array(
@@ -103,7 +114,7 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
                 'host' => 'hub.browserstack.com',
                 'port' => 80,
                 'timeout' => 30000,
-                'sessionStrategy' => 'shared',
+                'sessionStrategy' => $strategy,
                 'desiredCapabilities' => $capabilities,
             );
             /* TODO: testing is MSIE is currently broken, so disabled
@@ -112,7 +123,7 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
                 'host' => 'hub.browserstack.com',
                 'port' => 80,
                 'timeout' => 30000,
-                'sessionStrategy' => 'shared',
+                'sessionStrategy' => $strategy,
                 'desiredCapabilities' => array_merge(
                     $capabilities,
                     array(
@@ -135,6 +146,19 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
         } else {
             return array();
         }
+    }
+
+    /**
+     * Sets session with setting URL to workaround phpunit-selenium issue
+     * https://github.com/sebastianbergmann/phpunit-selenium/issues/295
+     *
+     * @return session object
+     */
+    public function prepareSession()
+    {
+        $result = parent::prepareSession();
+        $this->url('');
+        return $result;
     }
 
     /**
@@ -187,7 +211,7 @@ abstract class PMA_SeleniumBase extends PHPUnit_Extensions_Selenium2TestCase
     {
         $result = $this->dbQuery('SELECT COUNT(*) FROM mysql.user');
         if ($result !== false) {
-            $result::free();
+            $result->free();
             return true;
         }
         return false;

@@ -14,6 +14,7 @@ require_once 'TestBase.php';
  *
  * @package    PhpMyAdmin-test
  * @subpackage Selenium
+ * @group      selenium
  */
 class PMA_SeleniumCreateDropDatabaseTest extends PMA_SeleniumBase
 {
@@ -43,6 +44,7 @@ class PMA_SeleniumCreateDropDatabaseTest extends PMA_SeleniumBase
         $this->_dropDatabase();
 
         $this->waitForElement('byLinkText', "Databases")->click();
+        $this->waitForElementNotPresent('byCssSelector', 'div#loading_parent');
 
         $element = $this->waitForElement('byId', 'text_create_db');
         $element->clear();

@@ -319,7 +319,8 @@ $js_messages['strAddPoint'] = __('Add a point');
 $js_messages['strAddInnerRing'] = __('Add an inner ring');
 $js_messages['strFunctionHint'] = __('Shift + Click on function name to apply to all rows.');
 $js_messages['strYes'] = __('Yes');
-$js_messages['strCopySalt'] = __('Copy Salt');
+$js_messages['strCopyEncryptionKey'] = __('Do you want to copy encryption key?');
+$js_messages['strEncryptionKey'] = __('Encryption key');
 
 /* Designer (js/pmd/move.js) */
 $js_messages['strSelectReferencedKey'] = __('Select referenced key');
@@ -340,7 +341,7 @@ $js_messages['strCellEditHint'] = __('Press escape to cancel editing.');
 $js_messages['strSaveCellWarning'] = __('You have edited some data and they have not been saved. Are you sure you want to leave this page before saving the data?');
 $js_messages['strColOrderHint'] = __('Drag to reorder.');
 $js_messages['strSortHint'] = __('Click to sort.');
-$js_messages['strRemColHint'] = __('Hold shift and click to remove column from order by clause.');
+$js_messages['strRemColHint'] = __('Hold shift and click to remove column from ORDER BY clause.');
 $js_messages['strColMarkHint'] = __('Click to mark/unmark.');
 $js_messages['strColNameCopyHint'] = __('Double-click to copy column name.');
 $js_messages['strColVisibHint'] = __(
